@@ -1,18 +1,15 @@
 // api.js
 
-const BASE_URL = 'http://127.0.0.1:8000';
+// const BASE_URL = 'http://127.0.0.1:8000';
 // const BASE_URL = 'https://7e44-5-16-34-252.ngrok-free.app';
-// const BASE_URL = 'https://factual-heavily-bass.ngrok-free.app';
+const BASE_URL = 'https://factual-heavily-bass.ngrok-free.app';
 
 
-// список фикс размера и его выводить (внутри инты)
 export const getItemById = async (itemId) => {
     const response = await fetch(`${BASE_URL}/items/${itemId}`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json'
-        }
+        method: 'POST',
     });
+
     return response.json();
 };
 
