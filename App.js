@@ -1,18 +1,37 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {getItemById, searchByText, searchByImage} from './api';
 import './App.css'; // Импорт отдельного файла CSS для стилей
 
-// const BASE_URL = 'http://127.0.0.1:8000';
+const BASE_URL = 'http://127.0.0.1:8000';
 // const BASE_URL = 'https://7e44-5-16-34-252.ngrok-free.app';
-const BASE_URL = 'https://factual-heavily-bass.ngrok-free.app';
+// const BASE_URL = 'https://factual-heavily-bass.ngrok-free.app';
 const STATIC_DIR = '/static/'
 
-const SearchResults = ({showTextResult, showImageResult, searchResults}) => (
+const SearchResults = ({
+                           showTextResult,
+                           showImageResult,
+                           searchResults,
+                           handleItemClick,
+                           handleMouseEnter,
+                           handleMouseLeave,
+                           selectedItem
+                       }) => (
     (showTextResult || showImageResult) && (
         <div className="search-results">
             <h3>Результаты поиска:</h3>
             {searchResults.map((resultItem) => (
-                <div key={resultItem.item_id} className="result-item">
+                <div
+                    key={resultItem.item_id}
+          className={`result-item ${selectedItem === resultItem ? 'selected' : ''}`}
+          onClick={() => handleItemClick(resultItem)}
+          onMouseEnter={() => handleMouseEnter(resultItem)}
+          onMouseLeave={() => handleMouseLeave(resultItem)}
+                    // key={resultItem.item_id}
+                    //  className="result-item"
+                    // onClick={() => handleItemClick(resultItem)}
+                    // onMouseEnter={() => handleMouseEnter(resultItem)}
+                    // onMouseLeave={() => handleMouseLeave(resultItem)}
+                >
                     <img src={`${BASE_URL}${STATIC_DIR}${resultItem.image_path}`} alt={resultItem.product_name}/>
                     <p>{resultItem.product_name}</p>
                     <p>{resultItem.description}</p>
@@ -22,13 +41,13 @@ const SearchResults = ({showTextResult, showImageResult, searchResults}) => (
     )
 );
 
-const SelectedItem = ({selectedItem}) => (
+const SelectedItem = ({selectedItem, descriptionRef }) => (
     selectedItem && (
-        <div className="selected-item">
+        <div className="selected-item" ref={descriptionRef}>
             <table>
                 <thead>
                 <tr valign='bottom' align='center'>
-                    <th><big>{selectedItem.product_name} {selectedItem.product_type_name}</big></th>
+                    <th colSpan="2"><big>{selectedItem.product_name} {selectedItem.product_type_name}</big></th>
                 </tr>
                 </thead>
                 <tr valign='top' align='left'>
@@ -37,7 +56,7 @@ const SelectedItem = ({selectedItem}) => (
                              style={{maxWidth: 'fit-content'}}/>
                     </td>
 
-                    <td style={{width: "40%"}}>
+                    <td style={{width: "55%"}}>
                         <p><b>Description:</b> {selectedItem.description}</p>
                         <p><b>Product name: </b>{selectedItem.product_name}</p>
                         <p><b>Product type name: </b>{selectedItem.product_type_name}</p>
@@ -62,13 +81,23 @@ const SelectedItem = ({selectedItem}) => (
 const ItemDisplay = ({item, handleItemClick, handleMouseEnter, handleMouseLeave, selectedItem}) => (
     <div
         key={item.item_id}
-        // className={`item-display ${selectedItem === item ? 'selected' : ''}`}
         onClick={() => handleItemClick(item)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
     >
-        <img src={`${BASE_URL}${STATIC_DIR}${item.image_path}`} alt={item.product_name} style={{maxWidth: '200px'}}/>
-        <p>{item.product_name}</p>
+        <table>
+            <tr>
+                <td>
+                    <img src={`${BASE_URL}${STATIC_DIR}${item.image_path}`} alt={item.product_name}
+                         style={{maxWidth: '200px'}}/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <p>{item.product_name}</p>
+                </td>
+            </tr>
+        </table>
     </div>
 );
 
@@ -83,6 +112,8 @@ function App() {
         image: undefined,
         description: undefined,
     });
+
+    const descriptionRef = useRef(null);
 
     const fetchItems = async (start, end) => {
         const fetchedItems = [];
@@ -119,14 +150,23 @@ function App() {
 
     const handleItemClick = (item) => {
         setSelectedItem(item);
+        if (descriptionRef.current) {
+      descriptionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
     };
 
     const handleMouseEnter = (e) => {
-        e.target.style.transform = 'scale(1.2)';
+        // e.target.style.transform = 'scale(1.2)';
+          if (e.target) {
+    e.target.style.transform = 'scale(1.2)';
+  }
     };
 
     const handleMouseLeave = (e) => {
-        e.target.style.transform = 'scale(1)';
+        // e.target.style.transform = 'scale(1)';
+          if (e.target) {
+    e.target.style.transform = 'scale(1)';
+  }
     };
 
     return (
@@ -138,17 +178,36 @@ function App() {
                     <input type="text" value={searchText} onChange={(e) => setSearchText(e.target.value)}/>
                     <button className="button" onClick={handleSearchText}>Искать текст</button>
                 </div>
+
                 <div className="search-image">
-                    <label className="file">Поиск по изображению: </label>
-                    <input type="file" onChange={handleSearchByImage}/>
+                    {/*<label className="file">Поиск по изображению: </label>*/}
+                    {/*<input type="file" onChange={handleSearchByImage}/>*/}
+                    <label className="file-input-label" htmlFor="imageInput">
+                        Выбрать изображение
+                    </label>
+                    <input
+                        id="imageInput"
+                        type="file"
+                        className="file-input"
+                        onChange={handleSearchByImage}
+                    />
                 </div>
             </div>
-            <SearchResults showTextResult={showTextResult} showImageResult={showImageResult}
-                           searchResults={searchResults}/>
+
+            <SearchResults
+                showTextResult={showTextResult}
+                showImageResult={showImageResult}
+                searchResults={searchResults}
+                handleItemClick={handleItemClick}
+                handleMouseEnter={handleMouseEnter}
+                handleMouseLeave={handleMouseLeave}
+                selectedItem={selectedItem}
+            />
+            <SelectedItem selectedItem={selectedItem} descriptionRef={descriptionRef} />
 
             <div className="selected-and-items">
                 <h1>Список элементов</h1>
-                <SelectedItem selectedItem={selectedItem}/>
+                {/*<SelectedItem selectedItem={selectedItem}/>*/}
                 <div className="all-items">
                     {Array.isArray(items_id) && items_id.length > 0 ? (
                         items_id.map((item) => (
