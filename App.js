@@ -22,15 +22,10 @@ const SearchResults = ({
             {searchResults.map((resultItem) => (
                 <div
                     key={resultItem.item_id}
-          className={`result-item ${selectedItem === resultItem ? 'selected' : ''}`}
-          onClick={() => handleItemClick(resultItem)}
-          onMouseEnter={() => handleMouseEnter(resultItem)}
-          onMouseLeave={() => handleMouseLeave(resultItem)}
-                    // key={resultItem.item_id}
-                    //  className="result-item"
-                    // onClick={() => handleItemClick(resultItem)}
-                    // onMouseEnter={() => handleMouseEnter(resultItem)}
-                    // onMouseLeave={() => handleMouseLeave(resultItem)}
+                    className={`result-item ${selectedItem === resultItem ? 'selected' : ''}`}
+                    onClick={() => handleItemClick(resultItem)}
+                    onMouseEnter={() => handleMouseEnter(resultItem)}
+                    onMouseLeave={() => handleMouseLeave(resultItem)}
                 >
                     <img src={`${BASE_URL}${STATIC_DIR}${resultItem.image_path}`} alt={resultItem.product_name}/>
                     <p>{resultItem.product_name}</p>
@@ -41,7 +36,7 @@ const SearchResults = ({
     )
 );
 
-const SelectedItem = ({selectedItem, descriptionRef }) => (
+const SelectedItem = ({selectedItem, descriptionRef}) => (
     selectedItem && (
         <div className="selected-item" ref={descriptionRef}>
             <table>
@@ -115,21 +110,40 @@ function App() {
 
     const descriptionRef = useRef(null);
 
-    const fetchItems = async (start, end) => {
-        const fetchedItems = [];
-        for (let i = start; i <= end; i++) {
-            const item = await getItemById(i);
-            fetchedItems.push(item);
+    // const fetchItems = async (start, end) => {
+    //     const fetchedItems = [];
+    //     for (let i = start; i <= end; i++) {
+    //         const item = await getItemById(i);
+    //         fetchedItems.push(item);
+    //     }
+    //     console.log('fetchedItems', fetchedItems);
+    //     setItems(fetchedItems);
+    // };
+    //
+    // useEffect(() => {
+    //     // Fetch items from index 1 to 5 initially
+    //     fetchItems(1, 12);
+    // }, []);
+
+    const fetchItems = async () => {
+        try {
+            // Generate an array of 30 random item IDs
+            const itemIds = Array.from({length: 28}, () => Math.floor(Math.random() * 1000) + 1);
+
+            // Fetch items asynchronously
+            const fetchedItems = await Promise.all(itemIds.map(async (id) => await getItemById(id)));
+
+            console.log('fetchedItems', fetchedItems);
+            setItems(fetchedItems);
+        } catch (error) {
+            console.error('Error fetching items:', error);
         }
-        console.log('fetchedItems', fetchedItems);
-        setItems(fetchedItems);
     };
 
     useEffect(() => {
-        // Fetch items from index 1 to 5 initially
-        fetchItems(1, 12);
+        // Fetch 30 random items initially
+        fetchItems();
     }, []);
-
 
     const handleSearchText = async () => {
         const results = await searchByText(searchText);
@@ -151,22 +165,20 @@ function App() {
     const handleItemClick = (item) => {
         setSelectedItem(item);
         if (descriptionRef.current) {
-      descriptionRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+            descriptionRef.current.scrollIntoView({behavior: 'smooth'});
+        }
     };
 
     const handleMouseEnter = (e) => {
-        // e.target.style.transform = 'scale(1.2)';
-          if (e.target) {
-    e.target.style.transform = 'scale(1.2)';
-  }
+        if (e.target) {
+            e.target.style.transform = 'scale(1.2)';
+        }
     };
 
     const handleMouseLeave = (e) => {
-        // e.target.style.transform = 'scale(1)';
-          if (e.target) {
-    e.target.style.transform = 'scale(1)';
-  }
+        if (e.target) {
+            e.target.style.transform = 'scale(1)';
+        }
     };
 
     return (
@@ -180,8 +192,6 @@ function App() {
                 </div>
 
                 <div className="search-image">
-                    {/*<label className="file">Поиск по изображению: </label>*/}
-                    {/*<input type="file" onChange={handleSearchByImage}/>*/}
                     <label className="file-input-label" htmlFor="imageInput">
                         Выбрать изображение
                     </label>
@@ -203,11 +213,10 @@ function App() {
                 handleMouseLeave={handleMouseLeave}
                 selectedItem={selectedItem}
             />
-            <SelectedItem selectedItem={selectedItem} descriptionRef={descriptionRef} />
+            <SelectedItem selectedItem={selectedItem} descriptionRef={descriptionRef}/>
 
             <div className="selected-and-items">
-                <h1>Список элементов</h1>
-                {/*<SelectedItem selectedItem={selectedItem}/>*/}
+                <h1>Каталог</h1>
                 <div className="all-items">
                     {Array.isArray(items_id) && items_id.length > 0 ? (
                         items_id.map((item) => (
