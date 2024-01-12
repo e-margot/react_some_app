@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {getItemById, searchByText, searchByImage} from './api';
 import './App.css'; // Импорт отдельного файла CSS для стилей
+import { TbCircleLetterW } from "react-icons/tb";
 
 const BASE_URL = 'http://127.0.0.1:8000';
 // const BASE_URL = 'https://7e44-5-16-34-252.ngrok-free.app';
@@ -183,7 +184,12 @@ function App() {
 
     return (
         <div className="app-container">
-            <h1>WearU</h1>
+            {/*<TbCircleLetterW />*/}
+            <h1>
+                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>
+                    WearU
+                </a>
+            </h1>
             <div className="search-bar">
                 <div className="search-text">
                     <label>Поиск по тексту: </label>
